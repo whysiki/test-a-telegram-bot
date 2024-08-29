@@ -11,7 +11,7 @@ from aiogram.client.session.aiohttp import AiohttpSession
 from PIL import Image, ImageChops
 from typing import BinaryIO
 import io
-import cv2
+import cv2  # opencv-python-headless / opencv-contrib-python
 import tempfile
 import imageio
 import urllib.request
