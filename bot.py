@@ -6,24 +6,24 @@ from aiogram import Bot, Dispatcher, html
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
-from aiogram.types import Message
+from aiogram.types import Message, BufferedInputFile
+from aiogram.client.session.aiohttp import AiohttpSession
 from PIL import Image, ImageChops
 from typing import BinaryIO
-from aiogram.types import BufferedInputFile
 import io
-from rich import print
 import cv2
 import tempfile
 import imageio
-
+from rich import print
 
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
 dp = Dispatcher()
-
+session = AiohttpSession(proxy="http://127.0.0.1:62333/")
 bot = Bot(
     token=TOKEN,
     default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+    session=session,
 )
 
 
@@ -46,10 +46,9 @@ def webm_to_gif_buffered_input_file(webm_io: io.BytesIO) -> BufferedInputFile:
     with tempfile.NamedTemporaryFile(delete=False, suffix=".webm") as temp_file:
         temp_file.write(webm_io.read())
         temp_file_path = temp_file.name
-
     # 使用 OpenCV 读取临时文件
     video_cap = cv2.VideoCapture(temp_file_path)
-
+    print(f"Video Frame Count: {int(video_cap.get(cv2.CAP_PROP_FRAME_COUNT))}")
     frames = []
     while True:
         ret, frame = video_cap.read()
@@ -58,16 +57,20 @@ def webm_to_gif_buffered_input_file(webm_io: io.BytesIO) -> BufferedInputFile:
         # OpenCV 读取的是 BGR 格式，需要转换为 RGB
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frames.append(frame)
-
     video_cap.release()
-
     # 将帧列表保存为 GIF
     gif_bytes = io.BytesIO()
-    imageio.mimsave(gif_bytes, frames, format="GIF", duration=0.1)
+    # fps = 5 # 帧率
+    loop = 0  # 循环次数，0 表示无限循环
+    imageio.mimsave(gif_bytes, frames, format="GIF", loop=loop)
     gif_bytes.seek(0)
-
+    print(f"Converted GIF Size: {len(gif_bytes.getvalue())}")
     # 创建 BufferedInputFile 对象
     gif_file = BufferedInputFile(gif_bytes.read(), filename="animation.gif")
+    # 删除临时文件
+    if os.path.exists(temp_file_path):
+        os.remove(temp_file_path)
+        print(f"Deleted Temp File: {temp_file_path}")
     return gif_file
 
 
