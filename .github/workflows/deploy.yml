@@ -28,5 +28,3 @@ jobs:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       run: |
         nohup python bot.py &
-    ```
-
