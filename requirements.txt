@@ -29,7 +29,6 @@ Pygments==2.18.0
 python-dotenv==1.0.1
 python-socks==2.5.1
 requests==2.32.3
-rich==13.8.0
 setuptools==74.0.0
 tqdm==4.66.5
 typing_extensions==4.12.2
