@@ -14,7 +14,8 @@ from typing import BinaryIO
 from aiogram.types import BufferedInputFile, URLInputFile
 from aiogram.client.session.aiohttp import AiohttpSession
 import io
-from rich import print
+
+# from rich import print
 import cv2
 import tempfile
 import imageio
