@@ -14,12 +14,33 @@ import io
 import cv2
 import tempfile
 import imageio
-from rich import print
+import urllib.request
+
 
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+OWNER_ID = os.getenv("OWNER_ID")
+proxy = "http://127.0.0.1:62333/"
+
+# Check if the proxy is working
+proxy_handler = urllib.request.ProxyHandler(
+    {
+        "http": proxy,
+        "https": proxy,
+    }
+)
+opener = urllib.request.build_opener(proxy_handler)
+try:
+    urllib.request.install_opener(opener)
+    urllib.request.urlopen("https://api.telegram.org")
+except Exception as e:
+    print(f"Proxy Error: {str(e)}")
+    proxy = None
+else:
+    print("Proxy is working")
+
 
 dp = Dispatcher()
-session = AiohttpSession(proxy="http://127.0.0.1:62333/")
+session = AiohttpSession(proxy=proxy)
 bot = Bot(
     token=TOKEN,
     default=DefaultBotProperties(parse_mode=ParseMode.HTML),
@@ -160,6 +181,7 @@ async def echo_handler(message: Message) -> None:
 
 async def main() -> None:
 
+    await bot.send_message(OWNER_ID, "I'm alive! 🥰")
     await dp.start_polling(bot)
 
 
